@@ -1,0 +1,187 @@
+fileFormatVersion: 2
+guid: a1cd88e8a53cc2c438b7d556beae2ecc
+timeCreated: 1460146972
+licenseType: Free
+TextureImporter:
+  fileIDToRecycleName:
+    21300000: flameSheet3_0
+    21300002: flameSheet3_1
+    21300004: flameSheet3_2
+    21300006: flameSheet3_3
+    21300008: flameSheet3_4
+    21300010: flameSheet3_5
+  serializedVersion: 2
+  mipmaps:
+    mipMapMode: 0
+    enableMipMap: 1
+    linearTexture: 0
+    correctGamma: 0
+    fadeOut: 0
+    borderMipMap: 0
+    mipMapFadeDistanceStart: 1
+    mipMapFadeDistanceEnd: 3
+  bumpmap:
+    convertToNormalMap: 0
+    externalNormalMap: 0
+    heightScale: 0.25
+    normalMapFilter: 0
+  isReadable: 0
+  grayScaleToAlpha: 0
+  generateCubemap: 0
+  cubemapConvolution: 0
+  cubemapConvolutionSteps: 7
+  cubemapConvolutionExponent: 1.5
+  seamlessCubemap: 0
+  textureFormat: -3
+  maxTextureSize: 2048
+  textureSettings:
+    filterMode: 0
+    aniso: 16
+    mipBias: -1
+    wrapMode: 1
+  nPOTScale: 0
+  lightmap: 0
+  rGBM: 0
+  compressionQuality: 50
+  allowsAlphaSplitting: 0
+  spriteMode: 2
+  spriteExtrude: 1
+  spriteMeshType: 1
+  alignment: 0
+  spritePivot: {x: 0.5, y: 0.5}
+  spriteBorder: {x: 0, y: 0, z: 0, w: 0}
+  spritePixelsToUnits: 72
+  alphaIsTransparency: 1
+  textureType: 8
+  buildTargetSettings: []
+  spriteSheet:
+    sprites:
+    - name: flameSheet3_0
+      rect:
+        serializedVersion: 2
+        x: 6
+        y: 0
+        width: 40
+        height: 72
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline:
+      - - {x: 10, y: -12}
+        - {x: 10, y: 1}
+        - {x: 6, y: 9}
+        - {x: 4, y: 11}
+        - {x: -2, y: 11}
+        - {x: -10, y: -9}
+        - {x: -10, y: -35}
+        - {x: -9, y: -36}
+        - {x: 9, y: -36}
+        - {x: 11, y: -35}
+        - {x: 11, y: -18}
+    - name: flameSheet3_1
+      rect:
+        serializedVersion: 2
+        x: 53
+        y: 0
+        width: 40
+        height: 72
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline:
+      - - {x: -7, y: 14}
+        - {x: -10, y: -3}
+        - {x: -10, y: -36}
+        - {x: 10, y: -36}
+        - {x: 13, y: -35}
+        - {x: 13, y: 3}
+        - {x: 10, y: 14}
+    - name: flameSheet3_2
+      rect:
+        serializedVersion: 2
+        x: 104
+        y: 0
+        width: 40
+        height: 72
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline:
+      - - {x: 11, y: 17}
+        - {x: -12, y: 17}
+        - {x: -12, y: -34}
+        - {x: -10, y: -36}
+        - {x: 10, y: -36}
+        - {x: 12, y: -35}
+        - {x: 14, y: -31}
+        - {x: 14, y: -4}
+    - name: flameSheet3_3
+      rect:
+        serializedVersion: 2
+        x: 165
+        y: 0
+        width: 40
+        height: 72
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline:
+      - - {x: -2, y: 25}
+        - {x: -10, y: 18}
+        - {x: -10, y: -36}
+        - {x: 11, y: -36}
+        - {x: 13, y: -33}
+        - {x: 13, y: 23}
+        - {x: 9, y: 25}
+      - - {x: -12, y: 24}
+        - {x: -16, y: 22}
+        - {x: -16, y: 15}
+        - {x: -15, y: 11}
+        - {x: -10, y: 11}
+        - {x: -6, y: 14}
+        - {x: -6, y: 22}
+        - {x: -10, y: 24}
+    - name: flameSheet3_4
+      rect:
+        serializedVersion: 2
+        x: 224
+        y: 0
+        width: 40
+        height: 72
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline:
+      - - {x: -16, y: 15}
+        - {x: -16, y: -33}
+        - {x: -15, y: -36}
+        - {x: 14, y: -36}
+        - {x: 14, y: 31}
+        - {x: 0, y: 31}
+        - {x: -8, y: 25}
+    - name: flameSheet3_5
+      rect:
+        serializedVersion: 2
+        x: 282
+        y: 0
+        width: 40
+        height: 72
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline:
+      - - {x: 5, y: 20}
+        - {x: 0, y: 24}
+        - {x: -9, y: 24}
+        - {x: -11, y: 23}
+        - {x: -11, y: -33}
+        - {x: -10, y: -36}
+        - {x: 11, y: -36}
+        - {x: 12, y: -33}
+        - {x: 12, y: 0}
+        - {x: 10, y: 13}
+    outline: []
+  spritePackingTag: 
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

@@ -1,0 +1,32 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 2015
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "2PuzzlingCircumstances.CSharp.Plugins", "2PuzzlingCircumstances.CSharp.Plugins.csproj", "{7A336F58-0F47-3B28-3995-1E13AED9F093}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "2PuzzlingCircumstances.CSharp", "2PuzzlingCircumstances.CSharp.csproj", "{6C5EF6F5-E635-780C-33CE-E3AFF7A5572D}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "2PuzzlingCircumstances.CSharp.Editor", "2PuzzlingCircumstances.CSharp.Editor.csproj", "{3AD9E05D-2E64-1945-A3D9-AAAB08E63205}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{7A336F58-0F47-3B28-3995-1E13AED9F093}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7A336F58-0F47-3B28-3995-1E13AED9F093}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7A336F58-0F47-3B28-3995-1E13AED9F093}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7A336F58-0F47-3B28-3995-1E13AED9F093}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6C5EF6F5-E635-780C-33CE-E3AFF7A5572D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6C5EF6F5-E635-780C-33CE-E3AFF7A5572D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6C5EF6F5-E635-780C-33CE-E3AFF7A5572D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6C5EF6F5-E635-780C-33CE-E3AFF7A5572D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3AD9E05D-2E64-1945-A3D9-AAAB08E63205}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3AD9E05D-2E64-1945-A3D9-AAAB08E63205}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3AD9E05D-2E64-1945-A3D9-AAAB08E63205}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3AD9E05D-2E64-1945-A3D9-AAAB08E63205}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
