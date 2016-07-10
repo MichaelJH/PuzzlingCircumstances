@@ -119,7 +119,7 @@ public class boxScript : MonoBehaviour {
                 fading = true;
                 StartCoroutine(FadeAndSpawn());
             }
-        } else if (coll.gameObject.tag == "Water") {
+        } else if (coll.gameObject.tag == "Water") { // not sure if this section gets activated at all
             rb2d.angularDrag = 100;
             Debug.Log("hit water boo");
         }
@@ -182,18 +182,24 @@ public class boxScript : MonoBehaviour {
         var renderer = GetComponent<SpriteRenderer>();
         Color newColor = renderer.color;
         Color initColor = newColor;
+        // fade away
         while (newColor.a > 0) {
             newColor.a -= 0.02f;
             renderer.color = newColor;
             yield return new WaitForSeconds(0.01f);
         }
 
+        // stop being carried
+        StopCarrying();
+
+        // reset to spawn point and default values
         rb2d.velocity = Vector2.zero;
         transform.position = spawn;
         transform.rotation = Quaternion.identity;
-        player.GetComponent<playerController>().SetPlayerState(playerController.State.Default);
         renderer.color = initColor;
-        rb2d.isKinematic = false;
         fading = false;
+
+        // change player state
+        player.GetComponent<playerController>().SetPlayerState(playerController.State.Default);
     }
 }
