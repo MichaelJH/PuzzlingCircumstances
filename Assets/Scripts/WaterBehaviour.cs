@@ -15,14 +15,15 @@ public class WaterBehaviour : MonoBehaviour {
     private GameObject[] colliders;
 
     // constants
-    const float springconstant = 0.01f;
-    const float damping = 0.03f;
+    const float springconstant = 0.025f;
+    const float damping = 0.05f;
     const float spread = 0.05f;
+
     const float z = -.1f;
 
     // dimensions
     float baseheight;
-    float left;
+    //float left;
     float bottom;
 
     public Material mat;
@@ -33,6 +34,9 @@ public class WaterBehaviour : MonoBehaviour {
     public float Width;
     public float Top;
     public float Bottom;
+
+    // render layer for the surface
+    private string sortLayer = "Sconce";
 
 
 	// Use this for initialization
@@ -49,7 +53,7 @@ public class WaterBehaviour : MonoBehaviour {
         bodyOfWater.material.renderQueue = 1000;
         bodyOfWater.SetVertexCount(nodecount);
         bodyOfWater.SetWidth(0.1f, 0.1f);
-        bodyOfWater.sortingLayerName = "Sconce";
+        bodyOfWater.sortingLayerName = sortLayer;
 
         xpositions = new float[nodecount];
         ypositions = new float[nodecount];
@@ -62,7 +66,7 @@ public class WaterBehaviour : MonoBehaviour {
 
         baseheight = newTop;
         bottom = newBottom;
-        left = newLeft;
+        //left = newLeft;
 
         for (int i = 0; i < nodecount; i++) {
             ypositions[i] = newTop;
@@ -133,7 +137,7 @@ public class WaterBehaviour : MonoBehaviour {
         float[] leftDeltas = new float[xpositions.Length];
         float[] rightDeltas = new float[xpositions.Length];
 
-        for (int j = 0; j < 8; j++) {
+        for (int j = 0; j < 16; j++) {
             for (int i = 0; i < xpositions.Length; i++) {
                 if (i > 0) {
                     leftDeltas[i] = spread * (ypositions[i] - ypositions[i - 1]);

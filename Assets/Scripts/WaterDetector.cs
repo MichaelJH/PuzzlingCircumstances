@@ -10,5 +10,10 @@ public class WaterDetector : MonoBehaviour {
             coll.GetComponent<boxScript>().underwater = true;
             transform.parent.GetComponent<WaterBehaviour>().Splash(transform.position.x, rb2d.velocity.y * rb2d.mass / 40f);
         }
+        else if (coll.gameObject.tag == "Droplet") {
+            Rigidbody2D rb2d = coll.GetComponent<Rigidbody2D>();
+            transform.parent.GetComponent<WaterBehaviour>().Splash(transform.position.x, rb2d.velocity.y * rb2d.mass / 40f);
+            coll.gameObject.GetComponent<Droplet>().Kill();
+        }
     }
 }

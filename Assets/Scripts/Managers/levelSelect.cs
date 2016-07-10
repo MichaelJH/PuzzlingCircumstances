@@ -124,7 +124,7 @@ public class levelSelect : MonoBehaviour {
     //at http://stackoverflow.com/questions/30766020/how-to-scroll-to-a-specific-element-in-scrollrect-with-unity-ui
     private void SnapTo(RectTransform target) {
         Vector2 sizeOfRect = scrollRect.GetComponent<RectTransform>().sizeDelta;
-        Vector2 sizeOfContent = contentPanel.GetComponent<RectTransform>().sizeDelta;
+        //Vector2 sizeOfContent = contentPanel.GetComponent<RectTransform>().sizeDelta;
         float offset = sizeOfRect.y / 2.5f;
 
         Canvas.ForceUpdateCanvases();

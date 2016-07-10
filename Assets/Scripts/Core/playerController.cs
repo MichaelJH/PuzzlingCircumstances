@@ -83,7 +83,7 @@ public class playerController : MonoBehaviour {
     void Update() {
         var collisionScript = GetComponent<playerCollisions>();
         var gravityScript = GetComponent<gravityHandler>();
-        Vector2 gravity = gravityScript.GetGravityVector();
+        //Vector2 gravity = gravityScript.GetGravityVector();
 
         if (move) {
             // check if we're close enough to the exit to open the door

@@ -14,7 +14,7 @@ public class boxScript : MonoBehaviour {
     private float waterAngDrag = 3f;
     // linear drag
     //private float normalDrag = 0f;
-    private float waterDrag = 10f;
+    //private float waterDrag = 10f;
 
     private float rotationSpeed = 8f; // speed at which a block rotates with mouse button
     private bool beingCarried; // true when player is carrying this box

@@ -22,7 +22,7 @@ public class UIManager : MonoBehaviour {
             //Instantiate objects
             Camera camera = GameObject.Find("Main Camera").GetComponent<Camera>();
             Canvas canvas = Instantiate(canvasPrefab);
-            GameObject events = Instantiate(eventSystemPrefab);
+            Instantiate(eventSystemPrefab);
             pauseMenu = Instantiate(pausePrefab);
 
             //Set canvas rendering to be in terms of main camera
