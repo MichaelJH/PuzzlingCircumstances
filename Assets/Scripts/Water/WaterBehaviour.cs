@@ -21,6 +21,7 @@ public class WaterBehaviour : MonoBehaviour {
     const float springconstant = 0.025f;
     const float damping = 0.05f;
     const float spread = 0.05f;
+    const int nodesPerUnit = 4; // number of nodes per unit length
 
     const float z = -.1f;
 
@@ -55,9 +56,10 @@ public class WaterBehaviour : MonoBehaviour {
     }
 
     public void SpawnWater(float left, float width, float top) {
-        int edgecount = Mathf.RoundToInt(width) * 4;
+        int edgecount = Mathf.RoundToInt(width) * nodesPerUnit;
         int nodecount = edgecount + 1;
 
+        // create the water surface
         bodyOfWater = gameObject.AddComponent<LineRenderer>();
         bodyOfWater.material = mat;
         bodyOfWater.material.renderQueue = 1000;
@@ -65,18 +67,21 @@ public class WaterBehaviour : MonoBehaviour {
         bodyOfWater.SetWidth(0.2f, 0.2f);
         bodyOfWater.sortingLayerName = sortLayer;
 
+        // instantiate arrays 
         xpositions = new float[nodecount];
         ypositions = new float[nodecount];
+        bottoms = new float[edgecount];
         velocities = new float[nodecount];
         accelerations = new float[nodecount];
 
         meshobjects = new GameObject[edgecount];
         meshes = new Mesh[edgecount];
         colliders = new GameObject[edgecount];
-        bottoms = new float[edgecount];
-
+        
+        // for reference in UpdateMeshes
         baseheight = top;
-
+        
+        // set the initial x and y positions, accelerations and velocities for each node
         for (int i = 0; i < nodecount; i++) {
             ypositions[i] = top;
             xpositions[i] = left + width * i / edgecount;
@@ -85,36 +90,41 @@ public class WaterBehaviour : MonoBehaviour {
             bodyOfWater.SetPosition(i, new Vector3(xpositions[i], ypositions[i], z));
         }
 
+        // build the meshes and colliders for each edge
         for (int i = 0; i < edgecount; i++) {
             meshes[i] = new Mesh();
 
+            // detect the depth for this edge
             RaycastHit2D downHit = Physics2D.Raycast(new Vector2(xpositions[i + 1]-0.1f, top), Vector2.down, Mathf.Infinity, _collisionMask);
             bottoms[i] = downHit.point.y;
-            if (i == edgecount - 1)
-                bottoms[i] = bottoms[i - 1];
 
+            // set the vertices of the polygon
             Vector3[] vertices = new Vector3[4];
             vertices[0] = new Vector3(xpositions[i], ypositions[i], z);
             vertices[1] = new Vector3(xpositions[i + 1], ypositions[i + 1], z);
             vertices[2] = new Vector3(xpositions[i], bottoms[i], z);
             vertices[3] = new Vector3(xpositions[i + 1], bottoms[i], z);
 
+            // create UVs
             Vector2[] UVs = new Vector2[4];
             UVs[0] = new Vector2(0, 1);
             UVs[1] = new Vector2(1, 1);
             UVs[2] = new Vector2(0, 0);
             UVs[3] = new Vector2(1, 0);
 
+            // define triangles from the vertices
             int[] tris = new int[6] { 0, 1, 3, 3, 2, 0 };
 
             meshes[i].vertices = vertices;
             meshes[i].uv = UVs;
             meshes[i].triangles = tris;
 
+            // instantiate the mesh
             meshobjects[i] = Instantiate(watermesh, Vector3.zero, Quaternion.identity) as GameObject;
             meshobjects[i].GetComponent<MeshFilter>().mesh = meshes[i];
             meshobjects[i].transform.parent = transform;
 
+            // create the collider
             colliders[i] = new GameObject();
             colliders[i].name = "Trigger";
             colliders[i].tag = "Water";
