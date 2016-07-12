@@ -8,7 +8,11 @@ public class WaterDetector : MonoBehaviour {
         if (coll.gameObject.tag == "Box") {
             Rigidbody2D rb2d = coll.GetComponent<Rigidbody2D>();
             coll.GetComponent<boxScript>().underwater = true;
-            transform.parent.GetComponent<WaterBehaviour>().Splash(transform.position.x, rb2d.velocity.y * rb2d.mass / 40f);
+            float veloc = rb2d.velocity.y * rb2d.mass / 40f;
+            float maxDisturb = 0.3f;
+            if (Mathf.Abs(veloc) > maxDisturb)
+                veloc = maxDisturb * Mathf.Sign(veloc);
+            transform.parent.GetComponent<WaterBehaviour>().Splash(transform.position.x, veloc);
         }
         else if (coll.gameObject.tag == "Droplet") {
             Rigidbody2D rb2d = coll.GetComponent<Rigidbody2D>();
