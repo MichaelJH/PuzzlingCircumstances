@@ -26,8 +26,6 @@ public class WaterBehaviour : MonoBehaviour {
 
     // dimensions
     float baseheight;
-    //float left;
-    float bottom;
 
     public Material mat;
     public GameObject watermesh;
@@ -40,7 +38,7 @@ public class WaterBehaviour : MonoBehaviour {
 	void Start () {
         _collisionMask = LayerMask.GetMask("Platform", "PortalPlatform");
         float[] dimensions = GenerateDimensions();
-        SpawnWater(dimensions[0], dimensions[1], dimensions[2], dimensions[3]);
+        SpawnWater(dimensions[0], dimensions[1], dimensions[2]);
 	}
 
     private float[] GenerateDimensions() {
@@ -52,15 +50,12 @@ public class WaterBehaviour : MonoBehaviour {
         RaycastHit2D rightHit = Physics2D.Raycast(transform.position, Vector2.right, Mathf.Infinity, _collisionMask);
         float width = rightHit.point.x - left; // width of the surface of the water
 
-        RaycastHit2D downHit = Physics2D.Raycast(transform.position, Vector2.down, Mathf.Infinity, _collisionMask);
-        float bottom = downHit.point.y; // y coordinate of the bottom of the water
-
-        float[] dims = { left, width, top, bottom };
+        float[] dims = { left, width, top,};
         return dims;
     }
 
-    public void SpawnWater(float newLeft, float newWidth, float newTop, float newBottom) {
-        int edgecount = Mathf.RoundToInt(newWidth) * 4;
+    public void SpawnWater(float left, float width, float top) {
+        int edgecount = Mathf.RoundToInt(width) * 4;
         int nodecount = edgecount + 1;
 
         bodyOfWater = gameObject.AddComponent<LineRenderer>();
@@ -80,13 +75,11 @@ public class WaterBehaviour : MonoBehaviour {
         colliders = new GameObject[edgecount];
         bottoms = new float[edgecount];
 
-        baseheight = newTop;
-        //bottom = newBottom;
-        //left = newLeft;
+        baseheight = top;
 
         for (int i = 0; i < nodecount; i++) {
-            ypositions[i] = newTop;
-            xpositions[i] = newLeft + newWidth * i / edgecount;
+            ypositions[i] = top;
+            xpositions[i] = left + width * i / edgecount;
             accelerations[i] = 0;
             velocities[i] = 0;
             bodyOfWater.SetPosition(i, new Vector3(xpositions[i], ypositions[i], z));
@@ -95,7 +88,7 @@ public class WaterBehaviour : MonoBehaviour {
         for (int i = 0; i < edgecount; i++) {
             meshes[i] = new Mesh();
 
-            RaycastHit2D downHit = Physics2D.Raycast(new Vector2(xpositions[i + 1]-0.1f, newTop), Vector2.down, Mathf.Infinity, _collisionMask);
+            RaycastHit2D downHit = Physics2D.Raycast(new Vector2(xpositions[i + 1]-0.1f, top), Vector2.down, Mathf.Infinity, _collisionMask);
             bottoms[i] = downHit.point.y;
             if (i == edgecount - 1)
                 bottoms[i] = bottoms[i - 1];
@@ -128,8 +121,8 @@ public class WaterBehaviour : MonoBehaviour {
             colliders[i].layer = LayerMask.NameToLayer("Water"); // for detection in the playerCollisions script
             colliders[i].AddComponent<BoxCollider2D>();
             colliders[i].transform.parent = transform;
-            colliders[i].transform.position = new Vector3(newLeft + newWidth * (i + 0.5f) / edgecount, newTop - 0.5f, 0);
-            colliders[i].transform.localScale = new Vector3(newWidth / edgecount, 0.05f, 1);
+            colliders[i].transform.position = new Vector3(left + width * (i + 0.5f) / edgecount, top - 0.5f, 0);
+            colliders[i].transform.localScale = new Vector3(width / edgecount, 0.05f, 1);
             colliders[i].GetComponent<BoxCollider2D>().isTrigger = true;
             colliders[i].AddComponent<WaterDetector>();
         }

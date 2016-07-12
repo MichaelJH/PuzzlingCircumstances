@@ -82,7 +82,7 @@ public class playerController : MonoBehaviour {
 
     void Update() {
         var collisionScript = GetComponent<playerCollisions>();
-        var gravityScript = GetComponent<gravityHandler>();
+        //var gravityScript = GetComponent<gravityHandler>();
         //Vector2 gravity = gravityScript.GetGravityVector();
 
         if (move) {

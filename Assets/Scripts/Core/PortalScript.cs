@@ -48,7 +48,8 @@ public class PortalScript : MonoBehaviour {
     // Update is called once per frame
     void Update() {
         //Create ray cast from player position to the platform
-        if ((Input.GetButtonDown("Fire1") || Input.GetButtonDown("Fire2")) && !paused && player.GetComponent<playerController>().GetPlayerState() == playerController.State.Portals) {
+        if ((Input.GetButtonDown("Fire1") || Input.GetButtonDown("Fire2")) && !paused
+                && player.GetComponent<playerController>().GetPlayerState() == playerController.State.Portals) {
             int platforms = LayerMask.GetMask("PortalPlatform", "Platform", "Barrier");
             int badportal;
             if (Input.GetButtonDown("Fire1")) {
