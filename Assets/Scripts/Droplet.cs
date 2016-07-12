@@ -13,7 +13,7 @@ public class Droplet : MonoBehaviour {
     }
 
     IEnumerator Dying() {
-        yield return new WaitForSeconds(0.2f);
-        Destroy(gameObject);
+        yield return new WaitForSeconds(0.05f);
+        gameObject.SetActive(false);
     }
 }
