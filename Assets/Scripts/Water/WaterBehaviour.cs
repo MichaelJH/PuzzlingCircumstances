@@ -11,8 +11,11 @@ public class WaterBehaviour : MonoBehaviour {
 
     private GameObject[] meshobjects;
     private Mesh[] meshes;
+    private float[] bottoms;
 
     private GameObject[] colliders;
+
+    private LayerMask _collisionMask;
 
     // constants
     const float springconstant = 0.025f;
@@ -35,14 +38,12 @@ public class WaterBehaviour : MonoBehaviour {
 
 	// Use this for initialization
 	void Start () {
-        //SpawnWater(Left, Width, Top, Bottom);
+        _collisionMask = LayerMask.GetMask("Platform", "PortalPlatform");
         float[] dimensions = GenerateDimensions();
         SpawnWater(dimensions[0], dimensions[1], dimensions[2], dimensions[3]);
 	}
 
     private float[] GenerateDimensions() {
-        LayerMask _collisionMask = LayerMask.GetMask("Platform", "PortalPlatform");
-
         float top = transform.position.y; // y coordinate for the surface of the water
 
         RaycastHit2D leftHit = Physics2D.Raycast(transform.position, Vector2.left, Mathf.Infinity, _collisionMask);
@@ -77,9 +78,10 @@ public class WaterBehaviour : MonoBehaviour {
         meshobjects = new GameObject[edgecount];
         meshes = new Mesh[edgecount];
         colliders = new GameObject[edgecount];
+        bottoms = new float[edgecount];
 
         baseheight = newTop;
-        bottom = newBottom;
+        //bottom = newBottom;
         //left = newLeft;
 
         for (int i = 0; i < nodecount; i++) {
@@ -93,11 +95,16 @@ public class WaterBehaviour : MonoBehaviour {
         for (int i = 0; i < edgecount; i++) {
             meshes[i] = new Mesh();
 
+            RaycastHit2D downHit = Physics2D.Raycast(new Vector2(xpositions[i + 1]-0.1f, newTop), Vector2.down, Mathf.Infinity, _collisionMask);
+            bottoms[i] = downHit.point.y;
+            if (i == edgecount - 1)
+                bottoms[i] = bottoms[i - 1];
+
             Vector3[] vertices = new Vector3[4];
             vertices[0] = new Vector3(xpositions[i], ypositions[i], z);
             vertices[1] = new Vector3(xpositions[i + 1], ypositions[i + 1], z);
-            vertices[2] = new Vector3(xpositions[i], bottom, z);
-            vertices[3] = new Vector3(xpositions[i + 1], bottom, z);
+            vertices[2] = new Vector3(xpositions[i], bottoms[i], z);
+            vertices[3] = new Vector3(xpositions[i + 1], bottoms[i], z);
 
             Vector2[] UVs = new Vector2[4];
             UVs[0] = new Vector2(0, 1);
@@ -133,8 +140,8 @@ public class WaterBehaviour : MonoBehaviour {
             Vector3[] vertices = new Vector3[4];
             vertices[0] = new Vector3(xpositions[i], ypositions[i], z);
             vertices[1] = new Vector3(xpositions[i + 1], ypositions[i + 1], z);
-            vertices[2] = new Vector3(xpositions[i], bottom, z);
-            vertices[3] = new Vector3(xpositions[i + 1], bottom, z);
+            vertices[2] = new Vector3(xpositions[i], bottoms[i], z);
+            vertices[3] = new Vector3(xpositions[i + 1], bottoms[i], z);
 
             meshes[i].vertices = vertices;
         }
