@@ -52,7 +52,7 @@ public class WaterBehaviour : MonoBehaviour {
         bodyOfWater.material = mat;
         bodyOfWater.material.renderQueue = 1000;
         bodyOfWater.SetVertexCount(nodecount);
-        bodyOfWater.SetWidth(0.1f, 0.1f);
+        bodyOfWater.SetWidth(0.2f, 0.2f);
         bodyOfWater.sortingLayerName = sortLayer;
 
         xpositions = new float[nodecount];
@@ -104,10 +104,11 @@ public class WaterBehaviour : MonoBehaviour {
             colliders[i] = new GameObject();
             colliders[i].name = "Trigger";
             colliders[i].tag = "Water";
+            colliders[i].layer = LayerMask.NameToLayer("Water"); // for detection in the playerCollisions script
             colliders[i].AddComponent<BoxCollider2D>();
             colliders[i].transform.parent = transform;
             colliders[i].transform.position = new Vector3(newLeft + newWidth * (i + 0.5f) / edgecount, newTop - 0.5f, 0);
-            colliders[i].transform.localScale = new Vector3(newWidth / edgecount, 1, 1);
+            colliders[i].transform.localScale = new Vector3(newWidth / edgecount, 0.05f, 1);
             colliders[i].GetComponent<BoxCollider2D>().isTrigger = true;
             colliders[i].AddComponent<WaterDetector>();
         }

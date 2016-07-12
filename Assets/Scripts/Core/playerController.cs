@@ -433,6 +433,10 @@ public class playerController : MonoBehaviour {
         return result;
     }
 
+    public Vector2 GetPlayerVelocity() {
+        return playerVelocity;
+    }
+
     void OnCollisionEnter2D(Collision2D coll) {
         if (coll.gameObject.tag == "Barrier") {
             var portalScript = GetComponent<PortalScript>();

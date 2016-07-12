@@ -27,7 +27,7 @@ public class playerCollisions : MonoBehaviour {
     private bool verticalGravity;
 
     public void Init(GameObject entityGO) {
-        _collisionMask = LayerMask.GetMask("PortalPlatform", "Platform");
+        _collisionMask = LayerMask.GetMask("PortalPlatform", "Platform", "Water");
         _portalMask = LayerMask.GetMask("Portal");
         _buttonMask = LayerMask.GetMask("Button");
         _collider = entityGO.GetComponent<BoxCollider2D>();
@@ -115,7 +115,7 @@ public class playerCollisions : MonoBehaviour {
                     }
                 }
             }
-            if (hit) {
+            if (hit && hit.collider.gameObject.tag != "Water") {
                 HitNormal = hit.normal;
                 // collision rays render yellow for debugging
                 Debug.DrawRay(origin, rayDirection, Color.yellow);
@@ -215,25 +215,32 @@ public class playerCollisions : MonoBehaviour {
                 }
             }
             if (hit) {
-                HitNormal = hit.normal;
-                // collision rays will render yellow for debugging
-                Debug.DrawRay(origin, rayDirection, Color.yellow);
-                // find the y edge which is in the direction of travel, and assign it to float y
-                float y = Mathf.Sign(deltaY) == -1 ? _collisionRect.yMin : _collisionRect.yMax;
-
-                //deltaY = (_collisionRect.center.y + hit.distance * rayDirection.y - y) + ySkinSpace;
-                float checkY = (_collisionRect.center.y + hit.distance * rayDirection.y - y) + ySkinSpace;
-                if (yCandidate == -1 || Mathf.Abs(checkY) < Mathf.Abs(yCandidate)) {
-                    yCandidate = Mathf.Abs(checkY);
+                // To detect collisions with the surface of water.
+                if (hit.collider.gameObject.tag == "Water") {
+                    // call PlayerCollide in the WaterDetector script, with the player's x position and y velocity
+                    hit.collider.gameObject.GetComponent<WaterDetector>().PlayerCollide(transform.position.x, gameObject.GetComponent<playerController>().GetPlayerVelocity().y);
                 }
-                if (yCandidate < 0.1)
-                    yCandidate = 0;
+                else {
+                    HitNormal = hit.normal;
+                    // collision rays will render yellow for debugging
+                    Debug.DrawRay(origin, rayDirection, Color.yellow);
+                    // find the y edge which is in the direction of travel, and assign it to float y
+                    float y = Mathf.Sign(deltaY) == -1 ? _collisionRect.yMin : _collisionRect.yMax;
 
-                if (verticalGravity)
-                    onGround = true;
-                else
-                    SideCollision = true;
-                touchedPortal = false;
+                    //deltaY = (_collisionRect.center.y + hit.distance * rayDirection.y - y) + ySkinSpace;
+                    float checkY = (_collisionRect.center.y + hit.distance * rayDirection.y - y) + ySkinSpace;
+                    if (yCandidate == -1 || Mathf.Abs(checkY) < Mathf.Abs(yCandidate)) {
+                        yCandidate = Mathf.Abs(checkY);
+                    }
+                    if (yCandidate < 0.1)
+                        yCandidate = 0;
+
+                    if (verticalGravity)
+                        onGround = true;
+                    else
+                        SideCollision = true;
+                    touchedPortal = false;
+                }
             }
             // if gravity is vertical, y axis checks for button pushes
             if (verticalGravity) {
@@ -275,7 +282,7 @@ public class playerCollisions : MonoBehaviour {
 
         RaycastHit2D hit = Physics2D.Raycast(origin, direction, distance, _collisionMask);
 
-        if (hit) {
+        if (hit && hit.collider.gameObject.tag != "Water") {
             HitNormal = hit.normal;
             Debug.DrawRay(_collisionRect.center, direction, Color.yellow);
             // Stop deltaX and let entity drop by deltaY

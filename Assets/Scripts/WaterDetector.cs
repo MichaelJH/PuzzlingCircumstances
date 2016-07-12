@@ -13,7 +13,12 @@ public class WaterDetector : MonoBehaviour {
         else if (coll.gameObject.tag == "Droplet") {
             Rigidbody2D rb2d = coll.GetComponent<Rigidbody2D>();
             transform.parent.GetComponent<WaterBehaviour>().Splash(transform.position.x, rb2d.velocity.y * rb2d.mass / 40f);
-            coll.gameObject.GetComponent<Droplet>().Kill();
+            if (coll.gameObject.activeSelf)
+                coll.gameObject.GetComponent<Droplet>().Kill();
         }
+    }
+
+    public void PlayerCollide(float xPos, float yVeloc) {
+        transform.parent.GetComponent<WaterBehaviour>().Splash(xPos, yVeloc);
     }
 }
