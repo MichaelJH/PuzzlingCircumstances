@@ -29,20 +29,34 @@ public class WaterBehaviour : MonoBehaviour {
     public Material mat;
     public GameObject watermesh;
 
-    // set bounds
-    public float Left;
-    public float Width;
-    public float Top;
-    public float Bottom;
-
     // render layer for the surface
     private string sortLayer = "Sconce";
 
 
 	// Use this for initialization
 	void Start () {
-        SpawnWater(Left, Width, Top, Bottom);
+        //SpawnWater(Left, Width, Top, Bottom);
+        float[] dimensions = GenerateDimensions();
+        SpawnWater(dimensions[0], dimensions[1], dimensions[2], dimensions[3]);
 	}
+
+    private float[] GenerateDimensions() {
+        LayerMask _collisionMask = LayerMask.GetMask("Platform", "PortalPlatform");
+
+        float top = transform.position.y; // y coordinate for the surface of the water
+
+        RaycastHit2D leftHit = Physics2D.Raycast(transform.position, Vector2.left, Mathf.Infinity, _collisionMask);
+        float left = leftHit.point.x; // x coordinate for the lhs of the water
+
+        RaycastHit2D rightHit = Physics2D.Raycast(transform.position, Vector2.right, Mathf.Infinity, _collisionMask);
+        float width = rightHit.point.x - left; // width of the surface of the water
+
+        RaycastHit2D downHit = Physics2D.Raycast(transform.position, Vector2.down, Mathf.Infinity, _collisionMask);
+        float bottom = downHit.point.y; // y coordinate of the bottom of the water
+
+        float[] dims = { left, width, top, bottom };
+        return dims;
+    }
 
     public void SpawnWater(float newLeft, float newWidth, float newTop, float newBottom) {
         int edgecount = Mathf.RoundToInt(newWidth) * 4;
