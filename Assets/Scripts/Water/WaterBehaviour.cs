@@ -234,7 +234,7 @@ public class WaterBehaviour : MonoBehaviour {
 
             if (hitDownCheck) {
                 Debug.DrawRay(origin, Vector2.down, Color.red, 50f);
-                float xMinusTile = xRound + (tileSize * 100);
+                float xMinusTile = xRound - (tileSize * 100);
                 if (!hitLeftCheck
                     && (!initialMap.TryGetValue(xMinusTile, out temp)
                     || !initialMap[xMinusTile].Contains(yRound))
