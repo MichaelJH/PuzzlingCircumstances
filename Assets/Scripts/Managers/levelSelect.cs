@@ -33,9 +33,10 @@ public class levelSelect : MonoBehaviour {
     }
 
     void Update () {
+        // >>> Can remove this and just make Clicked() call ExitAnimation
         if (animate == true) {
             ExitAnimation();
-        }
+        } // <<<
         if (scenePaused != 0) {
             selectedScene = scenePaused;
             SelectScene();

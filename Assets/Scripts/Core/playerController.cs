@@ -31,6 +31,7 @@ public class playerController : MonoBehaviour {
 
     private GameObject carriedBox;
 
+    public bool staticPlayer = false;
     public bool move;
     public bool hasPortals = true;
 
@@ -70,7 +71,7 @@ public class playerController : MonoBehaviour {
             Vector3 enterPos = new Vector3(entrance.transform.position.x, entrance.transform.position.y, 0);
             enterPos -= 1.25f * entrance.transform.up;
             transform.position = enterPos;
-        } else { // otherwise unfreeze the player (since the entrance won't do it)
+        } else if (!staticPlayer) { // otherwise unfreeze the player (since the entrance won't do it), if the player object isn't intended to be static
             SetPlayerState(State.Default);
         }
 
