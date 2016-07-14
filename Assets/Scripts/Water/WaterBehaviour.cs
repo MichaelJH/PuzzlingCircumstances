@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using System.Collections;
+using System.Collections.Generic;
 
 public class WaterBehaviour : MonoBehaviour {
     private float[] xpositions;
@@ -34,6 +35,8 @@ public class WaterBehaviour : MonoBehaviour {
     // render layer for the surface
     private string sortLayer = "Sconce";
 
+    // for mapping underwater
+    float tileSize = 1.5f; // size of block tiles on the map
 
 	// Use this for initialization
 	void Start () {
@@ -136,6 +139,241 @@ public class WaterBehaviour : MonoBehaviour {
             colliders[i].GetComponent<BoxCollider2D>().isTrigger = true;
             colliders[i].AddComponent<WaterDetector>();
         }
+
+        MapUnderwater(left, left + width, top);
+    }
+
+    private void MapUnderwater(float leftEdge, float rightEdge, float surface) {
+        // find x and y coordinates of the unit to start from
+        float xOrigin = leftEdge + (tileSize / 2);
+        float ceiling = Physics2D.Raycast(new Vector2(xOrigin, surface), Vector2.up, Mathf.Infinity, _collisionMask).point.y;
+        float yOrigin = ceiling - ((Mathf.Ceil((ceiling - surface) / tileSize) * tileSize) + (tileSize / 2));
+
+        Vector2 origin = new Vector2(xOrigin, yOrigin);
+        Vector2 originalTile = origin;
+
+        Dictionary<float, List<float>> initialMap = new Dictionary<float, List<float>>();
+        Dictionary<float, List<float>> exploredMap = new Dictionary<float, List<float>>();
+
+        // create the initial map underneath the surface
+        while (origin.x < rightEdge) {
+            origin.y = yOrigin;
+
+            List<float> yMap = new List<float>();
+            float bottom = Physics2D.Raycast(origin, Vector2.down, Mathf.Infinity, _collisionMask).point.y;
+
+            while (origin.y > bottom) {
+                float yRound = Mathf.Round(origin.y * 100);
+                //Debug.Log("y = " + yRound);
+                yMap.Add(yRound);
+                origin.y -= tileSize;
+            }
+
+            float xRound = Mathf.Round(origin.x * 100);
+            initialMap.Add(xRound, yMap); // add the y collumn map to at the x coordinate
+            origin.x += tileSize; // increment x coordinate
+        }
+
+        origin.x -= tileSize; // return to rightmost tile
+        origin.y = yOrigin; // return to uppermost tile
+
+        SkimDown(initialMap, exploredMap, origin, originalTile);
+
+        float halfTile = tileSize / 2;
+        foreach(float x in exploredMap.Keys) {
+            float xR = x / 100;
+            List<float> yCoords = exploredMap[x];
+            foreach(float y in yCoords) {
+                float yR = y / 100;
+                CreateWaterMesh(xR - halfTile, xR + halfTile, yR + halfTile, yR - halfTile);
+            }
+        }
+    }
+
+    private Dictionary<float, List<float>> SkimDown(Dictionary<float, List<float>> initialMap, Dictionary<float, List<float>> exploredMap, Vector2 origin, Vector2 originalTile) {
+        // begin moving downward, looking for openings on the right
+        float edgeBottom = Physics2D.Raycast(origin, Vector2.down, Mathf.Infinity, _collisionMask).point.y;
+        List<float> temp = null;
+
+        while (origin.y > edgeBottom) {
+            RaycastHit2D hitCheck = Physics2D.Raycast(origin, Vector2.right, tileSize, _collisionMask);
+
+            if (hitCheck) {
+                Debug.DrawRay(origin, Vector2.right, Color.red, 50f);
+            } else {
+                float xPlusTile = Mathf.Round((origin.x + tileSize) * 100);
+                float yRound = Mathf.Round(origin.y * 100);
+
+                if (!exploredMap.TryGetValue(xPlusTile, out temp)
+                    || !exploredMap[xPlusTile].Contains(yRound)) {
+                    Debug.DrawRay(origin, Vector2.right, Color.white, 50f);
+                    exploredMap = MapArea(initialMap, exploredMap, new Vector2(origin.x + tileSize, origin.y));
+                } else {
+                    Debug.DrawRay(origin, Vector2.right, Color.red, 50f);
+                }
+            }
+            origin.y -= tileSize;
+        }
+
+        origin.y += tileSize;
+        return SkimLeft(initialMap, exploredMap, origin, originalTile);
+    }
+
+    private Dictionary<float, List<float>> SkimLeft(Dictionary<float, List<float>> initialMap, Dictionary<float, List<float>> exploredMap, Vector2 origin, Vector2 originalTile) {
+        // begin moving to the left, looking for openings on the bottom or unmapped tiles
+        float edgeLeft = Physics2D.Raycast(origin, Vector2.left, Mathf.Infinity, _collisionMask).point.x;
+        List<float> temp = null;
+
+        float yRound = Mathf.Round(origin.y * 100);
+
+        while (origin.x > edgeLeft) {
+            RaycastHit2D hitDownCheck = Physics2D.Raycast(origin, Vector2.down, tileSize, _collisionMask);
+            RaycastHit2D hitLeftCheck = Physics2D.Raycast(origin, Vector2.left, tileSize, _collisionMask);
+            
+            float xRound = Mathf.Round(origin.x * 100);
+
+            if (hitDownCheck) {
+                Debug.DrawRay(origin, Vector2.down, Color.red, 50f);
+                float xMinusTile = xRound + (tileSize * 100);
+                if (!hitLeftCheck
+                    && (!initialMap.TryGetValue(xMinusTile, out temp)
+                    || !initialMap[xMinusTile].Contains(yRound))
+                    && (!exploredMap.TryGetValue(xMinusTile, out temp)
+                    || !exploredMap[xMinusTile].Contains(yRound))) {
+
+                    Debug.DrawRay(origin, Vector2.left, Color.white, 50f);
+                    exploredMap = MapArea(initialMap, exploredMap, new Vector2(origin.x - tileSize, origin.y));
+                    return SkimUp(initialMap, exploredMap, new Vector2(origin.x, origin.y + tileSize), originalTile);
+
+                } else {
+                    Debug.DrawRay(origin, Vector2.left, Color.red, 50f);
+                }
+            } else {
+                Debug.DrawRay(origin, Vector2.down, Color.white, 50f);
+                return SkimDown(initialMap, exploredMap, new Vector2(origin.x, origin.y - tileSize), originalTile);
+            }
+
+            origin.x -= tileSize;
+        }
+
+        origin.x += tileSize;
+        return SkimUp(initialMap, exploredMap, origin, originalTile);
+    }
+
+    private Dictionary<float, List<float>> SkimUp(Dictionary<float, List<float>> initialMap, Dictionary<float, List<float>> exploredMap, Vector2 origin, Vector2 originalTile) {
+        List<float> temp = null;
+
+        float xMinusTile = Mathf.Round((origin.x - tileSize) * 100);
+        while (origin.y <= originalTile.y) {
+            RaycastHit2D hitLeftCheck = Physics2D.Raycast(origin, Vector2.left, tileSize, _collisionMask);
+
+            float yRound = Mathf.Round(origin.y * 100);
+
+            if (hitLeftCheck) {
+                Debug.DrawRay(origin, Vector2.left, Color.red, 50f);
+            } else {
+                if (initialMap.TryGetValue(xMinusTile, out temp)
+                    && initialMap[xMinusTile].Contains(yRound)) {
+                    Debug.DrawRay(origin, Vector2.left, Color.white, 50f);
+                    return SkimLeft(initialMap, exploredMap, new Vector2(origin.x - tileSize, origin.y), originalTile);
+                } else if (!exploredMap.TryGetValue(xMinusTile, out temp)
+                    || !exploredMap[xMinusTile].Contains(yRound)) {
+                    Debug.DrawRay(origin, Vector2.left, Color.white, 50f);
+                    exploredMap = MapArea(initialMap, exploredMap, new Vector2(origin.x - tileSize, origin.y));
+                } else {
+                    Debug.DrawRay(origin, Vector2.left, Color.red, 50f);
+                }
+            }
+            origin.y += tileSize;
+        }
+
+        return exploredMap;
+    }
+
+    private Dictionary<float, List<float>> MapArea(Dictionary<float, List<float>> initialMap, Dictionary<float, List<float>> exploredMap, Vector2 origin) {
+        float xRound = Mathf.Round(origin.x * 100);
+        float yRound = Mathf.Round(origin.y * 100);
+        List<float> temp = null;
+
+        if (exploredMap.TryGetValue(xRound, out temp))
+            exploredMap[xRound].Add(yRound);
+        else {
+            List<float> newlist = new List<float>();
+            newlist.Add(yRound);
+            exploredMap.Add(xRound, newlist);
+        }
+
+        float xPlusTile = xRound + (tileSize * 100);
+        if (!Physics2D.Raycast(origin, Vector2.right, tileSize, _collisionMask)
+            && (!exploredMap.TryGetValue(xPlusTile, out temp)
+            || !exploredMap[xPlusTile].Contains(yRound))
+            && (!initialMap.TryGetValue(xPlusTile, out temp)
+            || !initialMap[xPlusTile].Contains(yRound))) {
+            exploredMap = MapArea(initialMap, exploredMap, new Vector2(origin.x + tileSize, origin.y));
+            Debug.DrawRay(origin, Vector2.right, Color.white, 50f);
+        } else {
+            Debug.DrawRay(origin, Vector2.right, Color.red, 50f);
+        }
+
+        float yMinusTile = yRound - (tileSize * 100);
+        if (!Physics2D.Raycast(origin, Vector2.down, tileSize, _collisionMask)
+            && !exploredMap[xRound].Contains(yMinusTile)) {
+            exploredMap = MapArea(initialMap, exploredMap, new Vector2(origin.x, origin.y - tileSize));
+            Debug.DrawRay(origin, Vector2.down, Color.white, 50f);
+        } else {
+            Debug.DrawRay(origin, Vector2.down, Color.red, 50f);
+        }
+
+        float xMinusTile = xRound - (tileSize * 100);
+        if (!Physics2D.Raycast(origin, Vector2.left, tileSize, _collisionMask)
+            && (!exploredMap.TryGetValue(xMinusTile, out temp)
+            || !exploredMap[xMinusTile].Contains(yRound))
+            && (!initialMap.TryGetValue(xMinusTile, out temp)
+            || !initialMap[xMinusTile].Contains(yRound))) {
+            exploredMap = MapArea(initialMap, exploredMap, new Vector2(origin.x - tileSize, origin.y));
+            Debug.DrawRay(origin, Vector2.left, Color.white, 50f);
+        } else {
+            Debug.DrawRay(origin, Vector2.left, Color.red, 50f);
+        }
+
+        // comment out this last move (upward moving) to avoid filling in upwards (if that is desirable)
+        float yPlusTile = yRound + (tileSize * 100);
+        if (!Physics2D.Raycast(origin, Vector2.up, tileSize, _collisionMask)
+            && !exploredMap[xRound].Contains(yPlusTile)) {
+            exploredMap = MapArea(initialMap, exploredMap, new Vector2(origin.x, origin.y + tileSize));
+            Debug.DrawRay(origin, Vector2.up, Color.white, 50f);
+        } else {
+            Debug.DrawRay(origin, Vector2.up, Color.red, 50f);
+        }
+
+        return exploredMap;
+    }
+
+    private void CreateWaterMesh(float leftPoint, float rightPoint, float topPoint, float bottomPoint) {
+        Vector3[] vertices = new Vector3[4];
+        vertices[0] = new Vector3(leftPoint, topPoint, z);
+        vertices[1] = new Vector3(rightPoint, topPoint, z);
+        vertices[2] = new Vector3(leftPoint, bottomPoint, z);
+        vertices[3] = new Vector3(rightPoint, bottomPoint, z);
+
+        Vector2[] UVs = new Vector2[4];
+        UVs[0] = new Vector2(0, 1);
+        UVs[1] = new Vector2(1, 1);
+        UVs[2] = new Vector2(0, 0);
+        UVs[3] = new Vector2(1, 0);
+
+        int[] tris = new int[6] { 0, 1, 3, 3, 2, 0 };
+
+        Mesh underMesh = new Mesh();
+        GameObject meshObj = new GameObject();
+
+        underMesh.vertices = vertices;
+        underMesh.uv = UVs;
+        underMesh.triangles = tris;
+
+        meshObj = Instantiate(watermesh, Vector3.zero, Quaternion.identity) as GameObject;
+        meshObj.GetComponent<MeshFilter>().mesh = underMesh;
+        meshObj.transform.parent = transform;
     }
 
     void UpdateMeshes() {
