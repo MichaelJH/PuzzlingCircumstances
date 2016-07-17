@@ -61,7 +61,7 @@ public class doorScript : MonoBehaviour {
             playerScript.SetPlayerState(playerController.State.Inactive);
 
             // set the exit speed (used in moveTowards)
-            float exitSpeed = playerScript.playerSpeed * 30;
+            float exitSpeed = playerScript.GetPlayerTopSpeed() * 30;
 
             // find the starting and ending points of the moveTowards
             // TODO: if this math is moved to Start(), only have to calculate end position once

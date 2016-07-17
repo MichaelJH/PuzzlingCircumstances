@@ -78,7 +78,7 @@ public class levelSelect : MonoBehaviour {
         var playerScript = player.GetComponent<playerController>();
 
         //Make player move towards door
-        float exitSpeed = playerScript.playerSpeed * 30;
+        float exitSpeed = playerScript.GetPlayerTopSpeed() * 30;
         Vector2 start = player.transform.position;
         Vector2 end = door.transform.position;
         end.y = start.y;
