@@ -9,6 +9,7 @@ public class playerCollisions : MonoBehaviour {
     private BoxCollider2D _collider;
     private Rect _collisionRect;
     private LayerMask _collisionMask;
+    private LayerMask _waterMask;
     private LayerMask _portalMask;
     private LayerMask _buttonMask;
 
@@ -27,7 +28,8 @@ public class playerCollisions : MonoBehaviour {
     private bool verticalGravity;
 
     public void Init(GameObject entityGO) {
-        _collisionMask = LayerMask.GetMask("PortalPlatform", "Platform", "Water");
+        _collisionMask = LayerMask.GetMask("PortalPlatform", "Platform");
+        _waterMask = LayerMask.GetMask("Water");
         _portalMask = LayerMask.GetMask("Portal");
         _buttonMask = LayerMask.GetMask("Button");
         _collider = entityGO.GetComponent<BoxCollider2D>();
@@ -182,6 +184,13 @@ public class playerCollisions : MonoBehaviour {
         Vector2 rayDirection = new Vector2(0, Mathf.Sign(deltaY));
         float yCandidate = -1f;
 
+        // Check for collisions with water surface
+        RaycastHit2D hitWater = Physics2D.Raycast(_collisionRect.center, rayDirection, distance, _waterMask);
+        if (hitWater && hitWater.collider.gameObject.tag == "Water") {
+            // call PlayerCollide in the WaterDetector script, with the player's x position and y velocity
+            hitWater.collider.gameObject.GetComponent<WaterDetector>().PlayerCollide(transform.position.x, gameObject.GetComponent<playerController>().GetPlayerVelocity().y);
+        }
+
         for (int i = 0; i < numOfRays; ++i) {
             float lerpAmount = (float)i / ((float)numOfRays - 1);
             Vector2 origin = dirX == -1 ? Vector2.Lerp(rayStartPoint, rayEndPoint, lerpAmount)
@@ -215,32 +224,25 @@ public class playerCollisions : MonoBehaviour {
                 }
             }
             if (hit) {
-                // To detect collisions with the surface of water.
-                if (hit.collider.gameObject.tag == "Water") {
-                    // call PlayerCollide in the WaterDetector script, with the player's x position and y velocity
-                    hit.collider.gameObject.GetComponent<WaterDetector>().PlayerCollide(transform.position.x, gameObject.GetComponent<playerController>().GetPlayerVelocity().y);
-                }
-                else {
-                    HitNormal = hit.normal;
-                    // collision rays will render yellow for debugging
-                    Debug.DrawRay(origin, rayDirection, Color.yellow);
-                    // find the y edge which is in the direction of travel, and assign it to float y
-                    float y = Mathf.Sign(deltaY) == -1 ? _collisionRect.yMin : _collisionRect.yMax;
+                HitNormal = hit.normal;
+                // collision rays will render yellow for debugging
+                Debug.DrawRay(origin, rayDirection, Color.yellow);
+                // find the y edge which is in the direction of travel, and assign it to float y
+                float y = Mathf.Sign(deltaY) == -1 ? _collisionRect.yMin : _collisionRect.yMax;
 
-                    //deltaY = (_collisionRect.center.y + hit.distance * rayDirection.y - y) + ySkinSpace;
-                    float checkY = (_collisionRect.center.y + hit.distance * rayDirection.y - y) + ySkinSpace;
-                    if (yCandidate == -1 || Mathf.Abs(checkY) < Mathf.Abs(yCandidate)) {
-                        yCandidate = Mathf.Abs(checkY);
-                    }
-                    if (yCandidate < 0.1)
-                        yCandidate = 0;
-
-                    if (verticalGravity)
-                        onGround = true;
-                    else
-                        SideCollision = true;
-                    touchedPortal = false;
+                //deltaY = (_collisionRect.center.y + hit.distance * rayDirection.y - y) + ySkinSpace;
+                float checkY = (_collisionRect.center.y + hit.distance * rayDirection.y - y) + ySkinSpace;
+                if (yCandidate == -1 || Mathf.Abs(checkY) < Mathf.Abs(yCandidate)) {
+                    yCandidate = Mathf.Abs(checkY);
                 }
+                if (yCandidate < 0.1)
+                   yCandidate = 0;
+
+                if (verticalGravity)
+                    onGround = true;
+                else
+                    SideCollision = true;
+                touchedPortal = false;
             }
             // if gravity is vertical, y axis checks for button pushes
             if (verticalGravity) {
