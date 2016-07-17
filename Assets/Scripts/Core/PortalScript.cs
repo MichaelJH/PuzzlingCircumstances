@@ -31,6 +31,8 @@ public class PortalScript : MonoBehaviour {
     public PortalPosition PPos;
     private WallOrientation shotOr;
     private float portalLength;
+    public bool p1underwater;
+    public bool p2underwater;
 
     private GameObject player;
 
@@ -43,6 +45,8 @@ public class PortalScript : MonoBehaviour {
         portalLength = Portal1.GetComponent<BoxCollider2D>().size.y*3;
         PPos = new PortalPosition(Portal1.transform.position, Portal2.transform.position);
         player = GameObject.Find("Player");
+        p1underwater = false;
+        p2underwater = false;
     }
 
     // Update is called once per frame
@@ -73,6 +77,13 @@ public class PortalScript : MonoBehaviour {
                 bool makePortal = true;
                 Vector2 consol = PortalPositionConsolidation(ref makePortal, hit);
                 Vector3 portalPos = new Vector3(consol.x, consol.y, 0);
+
+                if (makePortal) {
+                    if (Input.GetButtonDown("Fire1"))
+                        p1underwater = CheckUnderwater(portalPos, hit.normal);
+                    else
+                        p2underwater = CheckUnderwater(portalPos, hit.normal);
+                }
 
                 if (Input.GetButtonDown("Fire1") && makePortal) //If right mouse click
                 {
@@ -153,42 +164,6 @@ public class PortalScript : MonoBehaviour {
         makePortal = false;
         return result;
     }
-
-    //private Vector2 PortalPositionConsolidation(ref bool makePortal, RaycastHit2D hit) {
-    //    Vector2 origin = hit.point;
-    //    bool vertical = (shotOr == WallOrientation.Left || shotOr == WallOrientation.Right);
-    //    Vector2 normal = hit.normal;
-    //    int whichPortal;
-    //    if (Input.GetButtonDown("Fire1"))
-    //        whichPortal = 1;
-    //    else
-    //        whichPortal = 2;
-
-    //    bool done = false;
-    //    bool second = false;
-    //    Vector2 result = Vector2.zero;
-
-    //    while (!done) {
-    //        result = DetectCorner(origin, normal, vertical, whichPortal);
-    //        if (result == origin) {
-    //            result = DetectOverhang(origin, normal, vertical, whichPortal);
-    //        }
-    //        if (result == origin)
-    //            done = true;
-    //        else {
-    //            if (!second) {
-    //                Debug.Log("trying a second time");
-    //                origin = result;
-    //                second = true;
-    //            }
-    //            else {
-    //                done = true;
-    //                makePortal = false;
-    //            }
-    //        }
-    //    }
-    //    return result;
-    //}
 
     private Vector2 DetectCorner(Vector2 origin, Vector2 normal, bool vertical, int whichPortal) {
         Vector2 newPos = origin;
@@ -351,6 +326,35 @@ public class PortalScript : MonoBehaviour {
         }
 
         return newPos;
+    }
+
+    private bool CheckUnderwater(Vector2 origin, Vector2 hitNormal) {
+        float offsetConst = 0.1f;
+        float dir = 1f;
+        LayerMask waterMask = LayerMask.GetMask("Water");
+
+        if (hitNormal.y == 0) {
+            if (hitNormal.x < 0)
+                dir = -1f;
+
+            Vector2 rayOrigin = new Vector2(origin.x + offsetConst * dir, origin.y);
+            RaycastHit2D upRay = Physics2D.Raycast(rayOrigin, Vector2.up, portalLength, waterMask);
+
+            if (upRay) 
+                return true;
+            return false;
+        } else {
+            if (hitNormal.y < 0)
+                dir = -1f;
+
+            Vector2 rayOrigin = new Vector2(origin.x, origin.y + offsetConst * dir);
+            RaycastHit2D leftRay = Physics2D.Raycast(rayOrigin, Vector2.left, portalLength, waterMask);
+            RaycastHit2D rightRay = Physics2D.Raycast(rayOrigin, Vector2.right, portalLength, waterMask);
+
+            if (leftRay || rightRay)
+                return true;
+            return false;
+        }
     }
 }
 

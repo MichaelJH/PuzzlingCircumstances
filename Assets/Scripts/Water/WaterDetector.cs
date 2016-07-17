@@ -7,7 +7,7 @@ public class WaterDetector : MonoBehaviour {
     void OnTriggerEnter2D(Collider2D coll) {
         if (coll.gameObject.tag == "Box") {
             Rigidbody2D rb2d = coll.GetComponent<Rigidbody2D>();
-            coll.GetComponent<boxScript>().underwater = true;
+            coll.GetComponent<boxScript>().EnterWater();
             float veloc = rb2d.velocity.y * rb2d.mass / 40f;
             float maxDisturb = 0.3f;
             if (Mathf.Abs(veloc) > maxDisturb)
@@ -19,6 +19,14 @@ public class WaterDetector : MonoBehaviour {
             transform.parent.GetComponent<WaterBehaviour>().Splash(transform.position.x, rb2d.velocity.y * rb2d.mass / 40f);
             if (coll.gameObject.activeSelf)
                 coll.gameObject.GetComponent<Droplet>().Kill();
+        }
+    }
+
+    void OnTriggerExit2D(Collider2D coll) {
+        if (coll.gameObject.tag == "Box") {
+            if (coll.gameObject.transform.position.y > transform.position.y) {
+                coll.GetComponent<boxScript>().ExitWater();
+            }
         }
     }
 

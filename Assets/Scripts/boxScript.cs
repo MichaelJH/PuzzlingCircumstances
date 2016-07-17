@@ -13,12 +13,12 @@ public class boxScript : MonoBehaviour {
     private float carriedAngDrag = 5f;
     private float waterAngDrag = 3f;
     // linear drag
-    //private float normalDrag = 0f;
-    //private float waterDrag = 10f;
+    private float normalDrag = 0f;
+    private float waterDrag = 10f;
 
     private float rotationSpeed = 8f; // speed at which a block rotates with mouse button
     private bool beingCarried; // true when player is carrying this box
-    public bool underwater = false; // true when box is under water
+    public bool enterwater = false; // true when box is under water
     
     void Start() {
         player = GameObject.Find("Player");
@@ -37,11 +37,15 @@ public class boxScript : MonoBehaviour {
                 transform.Rotate(new Vector3(0, 0, -rotationSpeed));
             }
         }
-        if (underwater) {
-            if (rb2d.drag < 10f)
-                rb2d.drag += 0.5f;
-            if (rb2d.angularDrag < waterAngDrag)
-                rb2d.angularDrag += 0.5f;
+        if (enterwater) {
+            if (rb2d.drag >= waterDrag && rb2d.angularDrag >= waterAngDrag)
+                enterwater = false;
+            else {
+                if (rb2d.drag < waterDrag)
+                    rb2d.drag += 0.5f;
+                if (rb2d.angularDrag < waterAngDrag)
+                    rb2d.angularDrag += 0.5f;
+            }
         }
     }
 
@@ -59,6 +63,16 @@ public class boxScript : MonoBehaviour {
             veloc.y = maxGravity * Mathf.Sign(veloc.y);
         }
         rb2d.velocity = veloc;
+    }
+
+    public void EnterWater() {
+        enterwater = true;
+    }
+
+    public void ExitWater() {
+        rb2d.drag = normalDrag;
+        rb2d.angularDrag = normalAngDrag;
+        enterwater = false;
     }
 
     // public function to tell the box it's now being carried by the player
@@ -138,18 +152,21 @@ public class boxScript : MonoBehaviour {
         PortalScript.WallOrientation orientation = PortalScript.WallOrientation.Left;
         Vector2 newPos = Vector2.zero;
         Vector2 newVeloc = Vector2.zero;
+        bool underwater = false;
 
         if (coll.gameObject == portalScript.Portal1) {
             if (portalScript.Portal2.activeSelf) {
                 teleport = true;
                 newPos = portalScript.PPos.p2;
                 orientation = portalScript.PPos.p2Or;
+                underwater = portalScript.p2underwater;
             }
         } else {
             if (portalScript.Portal1.activeSelf) {
                 teleport = true;
                 newPos = portalScript.PPos.p1;
                 orientation = portalScript.PPos.p1Or;
+                underwater = portalScript.p1underwater;
             }
         }
 
@@ -175,6 +192,13 @@ public class boxScript : MonoBehaviour {
 
             rb2d.velocity = newVeloc;
             transform.position = newPos;
+
+            if (underwater) {
+                EnterWater();
+            }
+            else {
+                ExitWater();
+            }
         }
     }
 
