@@ -18,10 +18,18 @@ public class playerController : MonoBehaviour {
     private bool _jump;
     private int _framesJumped;
 
-    public float jumpForce = 0.09f;
-    public float playerSpeed = 0.02f;
-    public float airSpeed = 0.001f;
-    public float gravityLimit = 2f;
+    // air/water values
+    private float normalLimit = 2f;
+    private float waterLimit = 1f;
+    private float normalSpeed = 0.25f;
+    private float waterSpeed = 0.15f;
+    private float normalJump = 0.35f;
+    private float waterJump = 0.2f;
+
+    private float jumpForce;
+    private float playerSpeed;
+    private float airSpeed = 0.01f;
+    private float gravityLimit;
     private Vector2 jumpDirection;
 
     public GameObject portalLinePrefab;
@@ -34,6 +42,9 @@ public class playerController : MonoBehaviour {
     public bool staticPlayer = false;
     public bool move;
     public bool hasPortals = true;
+    private bool underwater;
+    private bool leftwater;
+    private bool enteredwater;
 
     // for holding instances of boxes
     private GameObject[] boxes;
@@ -53,6 +64,13 @@ public class playerController : MonoBehaviour {
         // initialize jumping variables
         _jump = false;
         _framesJumped = 0;
+
+        // initialize speeds and forces
+        jumpForce = normalJump;
+        playerSpeed = normalSpeed;
+        gravityLimit = normalLimit;
+        underwater = false;
+        leftwater = false;
 
         // find and use entrance and exit doors
         exitDoor = GameObject.Find("Door");
@@ -194,6 +212,14 @@ public class playerController : MonoBehaviour {
                     CalculateJumpForce(gravity);
                 }
 
+                if (leftwater) {
+                    playerVelocity.y *= 2;
+                    leftwater = false;
+                } else if (enteredwater) {
+                    playerVelocity.y /= 2;
+                    enteredwater = false;
+                }
+
                 // calculate the new player position and move the transform
                 Vector3 newPosition = transform.position;
                 newPosition.x += playerVelocity.x;
@@ -250,9 +276,7 @@ public class playerController : MonoBehaviour {
             return;
         }
         if (_framesJumped == 0) {
-            jumpDirection = gravity;
-            float gravityMag = jumpDirection.magnitude;
-            jumpDirection /= -gravityMag;
+            jumpDirection = new Vector2(-Mathf.Sign(gravity.x), -Mathf.Sign(gravity.y));
         }
         float jumpFactor = 1f;
 
@@ -357,6 +381,30 @@ public class playerController : MonoBehaviour {
         carriedBox = null;
     }
 
+    public void EnterWater() {
+        if (!underwater) {
+            gravityLimit = waterLimit;
+            playerSpeed = waterSpeed;
+            jumpForce = waterJump;
+            underwater = true;
+            GetComponent<gravityHandler>().EnterWater();
+
+            enteredwater = true;
+        }
+    }
+
+    public void ExitWater() {
+        if (underwater) {
+            gravityLimit = normalLimit;
+            playerSpeed = normalSpeed;
+            jumpForce = normalJump;
+            underwater = false;
+            GetComponent<gravityHandler>().ExitWater();
+
+            leftwater = true;
+        }
+    }
+
     void PortalCollision(int whichPortal) {
         var portalScript = GetComponent<PortalScript>();
         float offset = 1.5f;
@@ -379,6 +427,16 @@ public class playerController : MonoBehaviour {
                 // transport any carried block to the new location
                 if (PlayerState == State.BoxCarry) {
                     carriedBox.transform.position = transform.position;
+                    var boxScript = carriedBox.GetComponent<boxScript>();
+                    if (portalScript.p2underwater)
+                        boxScript.EnterWater();
+                    else
+                        boxScript.ExitWater();
+                }
+                if (portalScript.p2underwater) {
+                    EnterWater();
+                } else {
+                    ExitWater();
                 }
             }
         }
@@ -400,7 +458,17 @@ public class playerController : MonoBehaviour {
                 // transport any carried block to the new location
                 if (PlayerState == State.BoxCarry) {
                     carriedBox.transform.position = transform.position;
+                    var boxScript = carriedBox.GetComponent<boxScript>();
+                    if (portalScript.p1underwater) {
+                        boxScript.EnterWater();
+                    } else {
+                        boxScript.ExitWater();
+                    }
                 }
+                if (portalScript.p1underwater)
+                    EnterWater();
+                else
+                    ExitWater();
             }
         }
         _jump = false;
@@ -416,8 +484,12 @@ public class playerController : MonoBehaviour {
         else
             orient = PortalScript.PPos.p2Or;
         float velocity = playerVelocity.magnitude - 0.03f;
-        if (velocity < .3f)
-            velocity = .3f;
+        float minVeloc = 0.3f;
+        if (underwater)
+            minVeloc = 0.15f;
+
+        if (velocity < minVeloc)
+            velocity = minVeloc;
         if (orient == PortalScript.WallOrientation.Left) {
             result = new Vector2(velocity, 0);
         }
@@ -436,6 +508,10 @@ public class playerController : MonoBehaviour {
 
     public Vector2 GetPlayerVelocity() {
         return playerVelocity;
+    }
+
+    public float GetPlayerTopSpeed() {
+        return playerSpeed;
     }
 
     void OnCollisionEnter2D(Collision2D coll) {

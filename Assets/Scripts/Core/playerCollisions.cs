@@ -184,11 +184,15 @@ public class playerCollisions : MonoBehaviour {
         Vector2 rayDirection = new Vector2(0, Mathf.Sign(deltaY));
         float yCandidate = -1f;
 
-        // Check for collisions with water surface
-        RaycastHit2D hitWater = Physics2D.Raycast(_collisionRect.center, rayDirection, distance, _waterMask);
-        if (hitWater && hitWater.collider.gameObject.tag == "Water") {
-            // call PlayerCollide in the WaterDetector script, with the player's x position and y velocity
-            hitWater.collider.gameObject.GetComponent<WaterDetector>().PlayerCollide(transform.position.x, gameObject.GetComponent<playerController>().GetPlayerVelocity().y);
+
+        RaycastHit2D reverseWater = Physics2D.Raycast(_collisionRect.center, -rayDirection, distance, _waterMask); // casting reverse of y direction
+        if (reverseWater && reverseWater.collider.gameObject.tag == "Water") {
+            if (Mathf.Sign(deltaY) < 0) {
+                GetComponent<playerController>().EnterWater();
+            }
+            else {
+                GetComponent<playerController>().ExitWater();
+            }
         }
 
         for (int i = 0; i < numOfRays; ++i) {
@@ -201,7 +205,14 @@ public class playerCollisions : MonoBehaviour {
 
             RaycastHit2D hit = Physics2D.Raycast(origin, rayDirection, distance, _collisionMask);
             RaycastHit2D hitPortal = Physics2D.Raycast(origin, rayDirection, distance, _portalMask);
+            RaycastHit2D hitWater = Physics2D.Raycast(origin, rayDirection, distance, _waterMask);
 
+            // Check for collisions with water surface
+            if (hitWater && hitWater.collider.gameObject.tag == "Water") {
+                // call PlayerCollide in the WaterDetector script, with the player's x position and y velocity
+                hitWater.collider.gameObject.GetComponent<WaterDetector>().PlayerCollide(transform.position.x, gameObject.GetComponent<playerController>().GetPlayerVelocity().y);
+            }
+            // Check for collisions with portals
             if (hitPortal) {
                 var portalScript = GetComponent<PortalScript>();
                 if (hitPortal.collider.gameObject == portalScript.Portal1 && portalScript.Portal2.activeSelf) {
@@ -223,6 +234,7 @@ public class playerCollisions : MonoBehaviour {
                     }
                 }
             }
+            // check for collisions with platforms
             if (hit) {
                 HitNormal = hit.normal;
                 // collision rays will render yellow for debugging

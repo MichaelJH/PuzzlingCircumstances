@@ -13,7 +13,10 @@ public class gravityHandler : MonoBehaviour {
     private Vector2 gravityVec;
     private GameObject roomHandler;
 
-    // set initial gravity
+    private float normalGravity;
+    private float waterGravity;
+
+    // set initial gravity (called by roomManager)
     public void Init (GravityOrientation initOr, float intensity) {
         gravityOr = initOr;
         SetGravityVector(intensity);
@@ -26,6 +29,9 @@ public class gravityHandler : MonoBehaviour {
             SetGravityOrientation(GravityOrientation.Right);
         else if (orient == 3)
             SetGravityOrientation(GravityOrientation.Left);
+
+        normalGravity = intensity;
+        waterGravity = intensity / 4;
     }
 
     // other scripts call this to get the gravity vector
@@ -64,5 +70,13 @@ public class gravityHandler : MonoBehaviour {
         } else {
             gravityVec = new Vector2(-intensity, 0);
         }
+    }
+
+    public void EnterWater() {
+        SetGravityIntensity(waterGravity);
+    }
+
+    public void ExitWater() {
+        SetGravityIntensity(normalGravity);
     }
 }
