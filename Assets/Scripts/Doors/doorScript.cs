@@ -166,7 +166,7 @@ public class doorScript : MonoBehaviour {
             LowerGate();
         }
         // stop player shadows
-        playerObject.layer = LayerMask.NameToLayer("Default");
+        playerObject.layer = LayerMask.NameToLayer("Deadly"); // Deadly instead of Default so boxes don't collide
         // wait for a bit again
         yield return new WaitForSeconds(0.4f);
         // fade room
