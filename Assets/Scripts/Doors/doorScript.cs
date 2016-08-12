@@ -175,7 +175,8 @@ public class doorScript : MonoBehaviour {
         yield return new WaitForSeconds(1 / fadeSpeed);
         // transition to next room
         int currentScene = SceneManager.GetActiveScene().buildIndex;
-        if (currentScene != 26) {
+
+        if (currentScene < SceneManager.sceneCountInBuildSettings - 1) {
             SceneManager.LoadScene(currentScene + next);
         } else
             SceneManager.LoadScene(0);
