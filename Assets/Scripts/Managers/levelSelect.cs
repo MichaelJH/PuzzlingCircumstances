@@ -9,7 +9,7 @@ public class levelSelect : MonoBehaviour {
     private GameObject door;
     private int scenePaused;
     private Image defaultImage;
-    public int numScenes;
+    private int numScenes;
 
     private Color selectedColor;
 
@@ -26,31 +26,16 @@ public class levelSelect : MonoBehaviour {
         var tracker = GameObject.Find("Tracker").GetComponent<tracker>();
         scenePaused = tracker.lastScene;
         if (scenePaused == 0) {
-            selectedScene = 1;
+            selectedScene = 27;
             SelectScene();
         }
         origin = contentPanel.anchoredPosition;
 
-        RectTransform[] items = contentPanel.GetComponentsInChildren<RectTransform>();
-        float itemOrigin = contentPanel.transform.position.y;
-        int offset = -25;
-        foreach(RectTransform t in items) {
-            if (t.tag != "LevelSelectItem")
-                continue;
-            if (t.sizeDelta.y == 30f) {
-                Debug.Log("Big!");
-                t.anchoredPosition = new Vector2(100, offset);
-                offset -= 35;
-            } else {
-                t.anchoredPosition = new Vector2(90, offset);
-                offset -= 25;
-            }
-        }
-        contentPanel.GetComponent<RectTransform>().sizeDelta = new Vector2(0, -offset + 10);
+        PositionLevels();
     }
 
     void Update () {
-        // >>> Can remove this and just make Clicked() call ExitAnimation
+        // >>> Can remove this and just make Clicked() call ExitAnimation - EDIT: ExitAnimation() uses time.deltaTime, this won't work
         if (animate == true) {
             ExitAnimation();
         } // <<<
@@ -75,6 +60,28 @@ public class levelSelect : MonoBehaviour {
         } else if (Input.GetKeyDown(KeyCode.Return)) {
             Clicked();
         }
+    }
+
+    private void PositionLevels() {
+        numScenes = 0;
+
+        RectTransform[] items = contentPanel.GetComponentsInChildren<RectTransform>();
+        float itemOrigin = contentPanel.transform.position.y;
+        int offset = -25;
+        foreach (RectTransform t in items) {
+            if (t.tag != "LevelSelectItem")
+                continue;
+            if (t.sizeDelta.y == 30f) {
+                offset -= 5;
+                t.anchoredPosition = new Vector2(100, offset);
+                offset -= 30;
+            } else {
+                t.anchoredPosition = new Vector2(90, offset);
+                offset -= 25;
+                numScenes++;
+            }
+        }
+        contentPanel.GetComponent<RectTransform>().sizeDelta = new Vector2(0, -offset + 10);
     }
 	
     public void Selected(int sceneNum) {
