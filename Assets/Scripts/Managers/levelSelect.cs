@@ -30,6 +30,23 @@ public class levelSelect : MonoBehaviour {
             SelectScene();
         }
         origin = contentPanel.anchoredPosition;
+
+        RectTransform[] items = contentPanel.GetComponentsInChildren<RectTransform>();
+        float itemOrigin = contentPanel.transform.position.y;
+        int offset = -25;
+        foreach(RectTransform t in items) {
+            if (t.tag != "LevelSelectItem")
+                continue;
+            if (t.sizeDelta.y == 30f) {
+                Debug.Log("Big!");
+                t.anchoredPosition = new Vector2(100, offset);
+                offset -= 35;
+            } else {
+                t.anchoredPosition = new Vector2(90, offset);
+                offset -= 25;
+            }
+        }
+        contentPanel.GetComponent<RectTransform>().sizeDelta = new Vector2(0, -offset + 10);
     }
 
     void Update () {
